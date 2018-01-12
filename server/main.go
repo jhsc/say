@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"os/exec"
 
 	pb "github.com/jhsc/say/api"
 	"google.golang.org/grpc"
@@ -33,5 +35,22 @@ func main() {
 }
 
 func (server) Say(ctx context.Context, text *pb.Text) (*pb.Speech, error) {
-	return nil, nil
+	f, err := ioutil.TempFile("", "")
+	if err != nil {
+		return nil, fmt.Errorf("could not create tmp file: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		return nil, fmt.Errorf("could not close %s: %v", f.Name(), err)
+	}
+
+	cmd := exec.Command("flite", "-t", text.Text, "-o", f.Name())
+	if data, err := cmd.CombinedOutput(); err != nil {
+		return nil, fmt.Errorf("flite failed: %s", data)
+	}
+
+	data, err := ioutil.ReadFile(f.Name())
+	if err != nil {
+		return nil, fmt.Errorf("could not read tmp file: %v", err)
+	}
+	return &pb.Speech{Audio: data}, nil
 }
