@@ -3,7 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
+
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -17,4 +20,10 @@ func main() {
 
 	fmt.Printf("say server address: %s", *server)
 	fmt.Printf("file output name: %s", *output)
+
+	conn, err := grpc.Dial(*server, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("could not connect to %s: %v", *server, err)
+	}
+	defer conn.Close()
 }
