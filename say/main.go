@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
+	pb "github.com/jhsc/say/api"
 	"google.golang.org/grpc"
 )
 
@@ -26,4 +29,17 @@ func main() {
 		log.Fatalf("could not connect to %s: %v", *server, err)
 	}
 	defer conn.Close()
+
+	client := pb.NewTextToSpeechClient(conn)
+
+	// Text from arguments
+	text := &pb.Text{Text: flag.Arg(0)}
+	resp, err := client.Say(context.Background(), text)
+	if err != nil {
+		log.Fatalf("could not say %s: %v", text.Text, err)
+	}
+
+	if err := ioutil.WriteFile(*output, resp.Audio, 0666); err != nil {
+		log.Fatalf("could not write to %s: %v", *output, err)
+	}
 }
