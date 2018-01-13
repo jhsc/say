@@ -7,3 +7,8 @@ Requirements:
 References:
 - flite [docs](http://www.speech.cs.cmu.edu/flite/)
 - gRPC [docs](https://grpc.io)
+
+## Run server
+```
+$ docker run --rm -p 8080:8080 jhsc/say-server
+```
