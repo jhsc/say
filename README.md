@@ -17,3 +17,6 @@ $ docker run --rm -p 8080:8080 jhsc/say-server
 ```
 $ go run say/main.go -s localhost:8080 -o output.wav
 ```
+
+### To do
+- Docker-compose
